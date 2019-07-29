@@ -1,0 +1,8 @@
+[package]
+name = "circle"
+version = "0.1.0"
+authors = ["loboyd <logan.boyd@protonmail.com>"]
+edition = "2018"
+
+[dependencies]
+image = "*"
