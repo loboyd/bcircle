@@ -2,14 +2,7 @@ extern crate image;
 
 mod img;
 use img::Img;
-//use math::round;
-//use math::abs;
-//use math::sqrt;
-
-/*
-mod obj;
-use obj::Obj;
-*/
+use std::time::Instant;
 
 fn main() {
     // create a new image
@@ -17,17 +10,19 @@ fn main() {
     let h = 500;
     let mut img = Img::new(w, h);
 
-    /* draw a nice wonderful beautiful circle
-    */
-    for _ in 1..10000000 {
-        circle(&mut img, 200, 200, 30, (255, 255, 0));
+    // draw a nice wonderful beautiful circle
+    let now = Instant::now();
+    for _ in 1..100000 {
+        circle(&mut img, 200, 200, 100, (255, 255, 0));
     }
+    println!("{:?}", Instant::now().duration_since(now));
 
-    /* draw a nice wonderful beautiful circle
-    for _ in 1..10000000 {
-        circle2(&mut img, 200., 200., 30., (255, 255, 0));
+    // draw a nice wonderful beautiful circle
+    let now = Instant::now();
+    for _ in 1..100000 {
+        circle2(&mut img, 200., 200., 100., (255, 255, 0));
     }
-    */
+    println!("{:?}", Instant::now().duration_since(now));
 
     // save the image
     img.save();
@@ -73,32 +68,25 @@ fn circle(img: &mut Img, x0: i32, y0: i32, radius:  i32, color: (u8,u8,u8)) {
     }
 }
 
-// Bresenham (unoptimized) circle
+/**
+ * Bresenham (unoptimized) circle
+ * written by following the Wikipedia page:
+ * https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+ */
 fn circle2(img: &mut Img, x0: f32, y0: f32, radius:  f32, color: (u8,u8,u8)) {
 
     let mut x_coord = radius;
     let mut y_coord = 0.;
     while x_coord >= y_coord {
-        // this is just a silly way of looping over [-1,1]
-        let mut i:f32 = -1.;
-        while i <= 1. {
-            let mut j:f32 = -1.;
-            while j <= 1. {
-                // place point
-                let x1 = x_coord*i + x0;
-                let y1 = y_coord*j + y0;
-                img.put(x1 as u32, y1 as u32, color);
+        img.put((x0 + x_coord) as u32, (y0 + y_coord) as u32, color);
+        img.put((x0 - x_coord) as u32, (y0 + y_coord) as u32, color);
+        img.put((x0 + x_coord) as u32, (y0 - y_coord) as u32, color);
+        img.put((x0 - x_coord) as u32, (y0 - y_coord) as u32, color);
 
-                // mirror point
-                let x1 = y_coord*i + x0;
-                let y1 = x_coord*j + y0;
-                img.put(x1 as u32, y1 as u32, color);
-
-                j += 2.;
-            }
-
-            i += 2.;
-        }
+        img.put((y0 + y_coord) as u32, (x0 + x_coord) as u32, color);
+        img.put((y0 - y_coord) as u32, (x0 + x_coord) as u32, color);
+        img.put((y0 + y_coord) as u32, (x0 - x_coord) as u32, color);
+        img.put((y0 - y_coord) as u32, (x0 - x_coord) as u32, color);
 
         x_coord = (x_coord*x_coord - 2.*y_coord - 1.).abs().sqrt();
         y_coord += 1.;
